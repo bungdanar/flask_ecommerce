@@ -63,5 +63,5 @@ class ItemList(Resource):
         # }
 
         return {
-            'items': list(map(lambda item: item.json(), ItemModel.query.all()))
+            'items': list(map(lambda item: item.json(), ItemModel.find_all()))
         }
