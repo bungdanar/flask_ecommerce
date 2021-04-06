@@ -17,6 +17,7 @@ class Item(Resource):
 
         return {'message': 'Item not found'}, 404
 
+    @jwt_required(fresh=True)
     def post(self, name):
         if ItemModel.find_by_name(name):
             return {
