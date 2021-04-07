@@ -2,10 +2,11 @@ from flask import Flask, jsonify
 from flask_restful import Api
 from flask_jwt_extended import JWTManager
 
-from resources.user import UserRegister, User, UserLogin, TokenRefresh
+from resources.user import UserRegister, User, UserLogin, TokenRefresh, UserLogout
 from resources.item import Item, ItemList
 from resources.store import Store, StoreList
 from db import db
+from blacklist import BLACKLIST
 
 
 app = Flask(__name__)
@@ -64,11 +65,16 @@ def token_not_fresh_callback():
 
 
 @jwt.revoked_token_loader
-def revoked_token_callback():
+def revoked_token_callback(jwt_headers, jwt_payload):
     return jsonify({
         'description': 'The token has been revoked',
         'error': 'token_revoked'
     }), 401
+
+
+@jwt.token_in_blocklist_loader
+def check_if_token_in_blacklist(jwt_headers, jwt_payload):
+    return jwt_payload['jti'] in BLACKLIST
 
 
 api.add_resource(Store, '/store/<string:name>')
@@ -78,6 +84,7 @@ api.add_resource(ItemList, '/items')
 api.add_resource(UserRegister, '/register')
 api.add_resource(User, '/user/<int:user_id>')
 api.add_resource(UserLogin, '/login')
+api.add_resource(UserLogout, '/logout')
 api.add_resource(TokenRefresh, '/refresh')
 
 if __name__ == '__main__':
