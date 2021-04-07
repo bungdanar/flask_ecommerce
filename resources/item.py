@@ -4,26 +4,35 @@ from flask_jwt_extended import jwt_required
 from models.item import ItemModel
 
 
+BLANK_ERROR = "'{}' cannot be blank"
+ITEM_NOT_FOUND = "Item not found"
+NAME_ALREADY_EXISTS = "An item with name '{}' already exists"
+ERROR_INSERTING = "An error occurred when inserting item"
+ITEM_DELETED = "Item deleted"
+
+
 class Item(Resource):
     parser = reqparse.RequestParser()
     parser.add_argument(
-        "price", type=float, required=True, help="This field cannot be left blank"
+        "price", type=float, required=True, help=BLANK_ERROR.format("price")
     )
     parser.add_argument(
-        "store_id", type=int, required=True, help="Every item needs a store id"
+        "store_id", type=int, required=True, help=BLANK_ERROR.format("store_id")
     )
 
-    def get(self, name: str):
+    @classmethod
+    def get(cls, name: str):
         item = ItemModel.find_by_name(name)
         if item:
             return item.json()
 
-        return {"message": "Item not found"}, 404
+        return {"message": ITEM_NOT_FOUND}, 404
 
+    @classmethod
     @jwt_required(fresh=True)
-    def post(self, name: str):
+    def post(cls, name: str):
         if ItemModel.find_by_name(name):
-            return {"message": f"An item with name {name} already exists"}, 400
+            return {"message": NAME_ALREADY_EXISTS.format(name)}, 400
 
         data = Item.parser.parse_args()
 
@@ -32,19 +41,22 @@ class Item(Resource):
         try:
             item.save_to_db()
         except:
-            return {"message": "An error occurred when inserting item"}, 500
+            return {"message": ERROR_INSERTING}, 500
 
         return item.json(), 201
 
+    @classmethod
     @jwt_required()
-    def delete(self, name: str):
+    def delete(cls, name: str):
         item = ItemModel.find_by_name(name)
         if item:
             item.delete_from_db()
+            return {"message": ITEM_DELETED}
 
-        return {"message": "Item deleted"}
+        return {"message": ITEM_NOT_FOUND}, 404
 
-    def put(self, name: str):
+    @classmethod
+    def put(cls, name: str):
         data = Item.parser.parse_args()
         item = ItemModel.find_by_name(name)
 
@@ -58,5 +70,6 @@ class Item(Resource):
 
 
 class ItemList(Resource):
-    def get(self):
+    @classmethod
+    def get(cls):
         return {"items": [item.json() for item in ItemModel.query.all()]}
