@@ -1,13 +1,9 @@
 from typing import Union
-from requests import Response, post
+from requests import Response
 from flask import request, url_for
 
 from db import db
-
-MAILGUN_DOMAIN = 'sandboxcd6e5ad678034703b6c55091327ffc77.mailgun.org'
-MAILGUN_API_KEY = 'key'
-FROM_TITLE = 'Flask Ecommerce'
-FROM_EMAIL = 'email'
+from libs.mailgun import Mailgun
 
 
 class UserModel(db.Model):
@@ -29,17 +25,11 @@ class UserModel(db.Model):
 
     def send_confirmation_email(self) -> Response:
         link = request.url_root[:-1] + url_for('userconfirm', user_id=self.id)
+        subject = 'Registration confirmation'
+        text = f'Please click the link to confirm your registration: {link}'
+        html = f'<html>Please click the link to confirm your registration: <a href="{link}">{link}</a></html>'
 
-        return post(
-            f"https://api.mailgun.net/v3/{MAILGUN_DOMAIN}/messages",
-            auth=('api', MAILGUN_API_KEY),
-            data={
-                'from': f'{FROM_TITLE} <{FROM_EMAIL}>',
-                'to': self.email,
-                'subject': 'Registration confirmation',
-                'text': f'Please click the link to confirm your registration: {link}'
-            }
-        )
+        return Mailgun.send_email([self.email], subject, text, html)
 
     @classmethod
     def find_by_username(cls, username: str) -> Union["UserModel", None]:
