@@ -36,7 +36,7 @@ jwt = JWTManager(app)
 
 
 @jwt.expired_token_loader
-def expired_token_callback():
+def expired_token_callback(jwt_headers, jwt_payload):
     return (
         jsonify({"description": "The token has expired", "error": "token_expired"}),
         401,
@@ -54,7 +54,7 @@ def invalid_token_callback(error):
 
 
 @jwt.unauthorized_loader
-def missing_token_callback():
+def missing_token_callback(error):
     return (
         jsonify(
             {
@@ -67,7 +67,7 @@ def missing_token_callback():
 
 
 @jwt.needs_fresh_token_loader
-def token_not_fresh_callback():
+def token_not_fresh_callback(jwt_headers, jwt_payload):
     return (
         jsonify(
             {"description": "The token is not fresh", "error": "fresh_token_required"}
