@@ -10,3 +10,4 @@ class StoreSchema(ma.SQLAlchemyAutoSchema):
         model = StoreModel
         dump_only = ('id',)
         include_fk = True
+        load_instance = True
