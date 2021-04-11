@@ -2,6 +2,7 @@ from time import time
 from uuid import uuid4
 
 from db import db
+from models.user import UserModel
 
 
 CONFIRMATION_EXPIRATION_DELTA = 1800  # 30 minutes
@@ -14,7 +15,7 @@ class ConfirmationModel(db.Model):
     expire_at = db.Column(db.Integer, nullable=False)
     confirmed = db.Column(db.Boolean, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    user = db.relationship('UserModel')
+    user: UserModel = db.relationship('UserModel')
 
     def __init__(self, user_id: int, **kwargs):
         super().__init__(**kwargs)
