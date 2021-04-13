@@ -14,7 +14,7 @@ flask-marshmallow = "*"
 marshmallow-sqlalchemy = "*"
 requests = "*"
 python-dotenv = "*"
-flask-uploads = "*"
+flask-uploads = {ref = "f66d7dc", git = "https://github.com/maxcountryman/flask-uploads.git"}
 
 [dev-packages]
 
