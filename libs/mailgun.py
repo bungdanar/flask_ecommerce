@@ -1,9 +1,12 @@
 from typing import List
+from dotenv import load_dotenv
 import os
 
 from requests import post, Response
 
 from libs.strings import gettext
+
+load_dotenv('.env', verbose=True)
 
 
 class MailgunException(Exception):
