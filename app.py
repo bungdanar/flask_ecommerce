@@ -4,6 +4,7 @@ from flask import Flask, jsonify
 from flask_restful import Api
 from flask_jwt_extended import JWTManager
 from flask_uploads import configure_uploads, patch_request_class
+from flask_migrate import Migrate
 from marshmallow import ValidationError
 
 from resources.user import UserRegister, User, UserLogin, TokenRefresh, UserLogout
@@ -23,19 +24,18 @@ app.config.from_envvar('APPLICATION_SETTINGS')
 patch_request_class(app, 10 * 1024 * 1024)  # 10 MB
 configure_uploads(app, IMAGE_SET)
 api = Api(app)
+jwt = JWTManager(app)
+migrate = Migrate(app, db)
 
 
-@app.before_first_request
-def create_tables():
-    db.create_all()
+# @app.before_first_request
+# def create_tables():
+#     db.create_all()
 
 
 @app.errorhandler(ValidationError)
 def handle_marshmallow_validation(err: ValidationError):
     return jsonify(err.messages), 400
-
-
-jwt = JWTManager(app)
 
 
 @jwt.expired_token_loader
