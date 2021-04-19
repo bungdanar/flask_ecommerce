@@ -110,7 +110,8 @@ api.add_resource(Image, '/image/<string:filename>')
 api.add_resource(AvatarUpload, '/upload/avatar')
 api.add_resource(Avatar, '/avatar/<int:user_id>')
 
+
+db.init_app(app)
 if __name__ == "__main__":
-    db.init_app(app)
     ma.init_app(app)
     app.run(port=5000)
