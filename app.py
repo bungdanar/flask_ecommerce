@@ -7,11 +7,14 @@ from flask_uploads import configure_uploads, patch_request_class
 from flask_migrate import Migrate
 from marshmallow import ValidationError
 
+load_dotenv('.env', verbose=True)
+
 from resources.user import UserRegister, User, UserLogin, TokenRefresh, UserLogout
 from resources.item import Item, ItemList
 from resources.store import Store, StoreList
 from resources.confirmation import Confirmation, ConfirmationByUser
 from resources.image import ImageUpload, Image, AvatarUpload, Avatar
+from resources.github_login import GithubLogin, GithubAuthorize
 from libs.image_helper import IMAGE_SET
 from db import db
 from ma import ma
@@ -19,7 +22,6 @@ from oa import oauth
 from blacklist import BLACKLIST
 
 app = Flask(__name__)
-load_dotenv('.env', verbose=True)
 app.config.from_object('default_config')
 app.config.from_envvar('APPLICATION_SETTINGS')
 patch_request_class(app, 10 * 1024 * 1024)  # 10 MB
@@ -29,9 +31,9 @@ jwt = JWTManager(app)
 migrate = Migrate(app, db)
 
 
-# @app.before_first_request
-# def create_tables():
-#     db.create_all()
+@app.before_first_request
+def create_tables():
+    db.create_all()
 
 
 @app.errorhandler(ValidationError)
@@ -102,6 +104,8 @@ api.add_resource(ItemList, "/items")
 api.add_resource(UserRegister, "/register")
 api.add_resource(User, "/user/<int:user_id>")
 api.add_resource(UserLogin, "/login")
+api.add_resource(GithubLogin, '/login/github')
+api.add_resource(GithubAuthorize, '/login/github/authorized')
 api.add_resource(UserLogout, "/logout")
 api.add_resource(TokenRefresh, "/refresh")
 api.add_resource(Confirmation, '/user_confirmation/<string:confirmation_id>')
