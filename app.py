@@ -15,6 +15,7 @@ from resources.image import ImageUpload, Image, AvatarUpload, Avatar
 from libs.image_helper import IMAGE_SET
 from db import db
 from ma import ma
+from oa import oauth
 from blacklist import BLACKLIST
 
 app = Flask(__name__)
@@ -114,4 +115,5 @@ api.add_resource(Avatar, '/avatar/<int:user_id>')
 db.init_app(app)
 if __name__ == "__main__":
     ma.init_app(app)
+    oauth.init_app(app)
     app.run(port=5000)
